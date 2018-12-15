@@ -34,7 +34,7 @@
 								<h3>Contract ABI</h3>
 									<pre><code id=contract-abi></code></pre>
 									<script>
-										fetch('../contracts/e-banker.abi')
+										fetch('./contracts/e-banker.abi')
 										.then(response => response.json())
 										.then((data) => {
 										  document.getElementById("contract-abi").innerHTML = data;
