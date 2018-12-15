@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>e-Banker - Trustless ether-bank</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="resources/css/main.css" />
+		<noscript><link rel="stylesheet" href="resources/css/noscript.css" /></noscript>
+		<link rel="icon" href="images/ETHEREUM-ICON_Black_small.png">
+		<script src="./node_modules/web3/dist/web3.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="./scripts/web3-script-e-banker.js"></script>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<h1>e-Banker</h1>
+						<p>Trustless ether-bank.</p>
+						<ul class="actions">
+							<li><a href="#header" class="button icon solo fa-arrow-down scrolly">Continue</a></li>
+						</ul>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="#header" class="logo">e-banker</a>
+					</header>
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="lets_bank.html">Let's bank!</a></li>
+							<li><a href="contract_code.html">Contract Code</a></li>
+							<li><a href="contract_abi.html">Contract ABI</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="lets_bank.html" class="icon fa-refresh"><span class="label">Refresh</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<!-- Posts -->
+							<section class="post">
+								<h3>Let's bank!</h3>
+								<hr>
+								<h4>Wallet Info</h4>
+								<p id=p-network-msg></p>
+								<p id=p-wallet-balance-msg></p>
+								<p><br></p>
+								<h4>Bank Info</h4>
+								<p id=p-account-msg></p>
+								<p id=p-account-active-msg></p>
+								<p id=p-bank-balance-msg></p>
+								<p><br></p>
+								<h4>Allowances</h4>
+								<p id=p-free-allowance-msg></p>
+								<p id=p-allowance-expiration-msg></p>
+								<p id=p-cumulative-allowance-msg></p>
+								<p id=p-allowance-period-msg></p>
+								<p><br></p>
+								<h4>Fallback</h4>
+								<p id=p-fallback-address-msg></p>
+								<p id=p-fallback-deposit-msg></p>
+								<p id=p-fallback-deposit-period-msg></p>
+								<p><br></p>
+								<h4>New allowances</h4>
+								<p id=p-new-cumulative-allowance-msg></p>
+								<p id=p-new-allowance-period-msg></p>
+								<p id=p-new-allowances-effectuation-msg></p>
+								<p><br></p>
+								<h4>New fallback</h4>
+								<p id=p-new-fallback-deposit-msg></p>
+								<p id=p-new-fallback-deposit-period-msg></p>
+								<p id=p-new-fallback-deposit-effectuation-msg></p>
+								<hr>
+								<h4>Actions</h4>
+								<ul class="actions">
+									<li><a id=button-activate class="button special">Activate</a></li>
+									<li><a id=button-deposit class="button special">Deposit</a></li>
+									<li><a id=button-withdraw class="button special">Withdraw</a></li>
+									<li><a id=button-transfer class="button special">Transfer</a></li>
+									<li><a id=button-fallback class="button special">Fallback!</a></li>
+								</ul>
+
+								<!-- Activate form -->
+								<form id=form-activate method="post" action="#" class="alt">
+									<h4>Activate e-banker account</h4>
+									<div class="row uniform">
+										<div class="12u$">
+											<input type="text" id="text-activate-fallbackAddress" value="" placeholder="Fallback address"/>
+										</div>
+										<div class="6u 12u$(xsmall)">
+											<input type="text" id="text-activate-fallbackDepositEth" value="" placeholder="Fallback deposit (eth)"/>
+										</div>
+										<div class="6u$ 12u$(xsmall)">
+											<input type="text" id="text-activate-fallbackDepositPeriodSec" value="" placeholder="Fallback deposit period (sec)"/>
+										</div>
+										<div class="6u 12u$(xsmall)">
+											<input type="text" id="text-activate-cumulativeAllowanceEth" value="" placeholder="Cumulative allowance (eth)"/>
+										</div>
+										<div class="6u$ 12u$(xsmall)">
+											<input type="text" id="text-activate-allowancePeriodSec" value="" placeholder="Allowance period (sec)"/>
+										</div>
+										<p><a id=button-activate-submit class="button special">Submit Activation</a></p>
+									</div>
+								</form>
+
+								<!-- Deposit form -->
+								<form id=form-deposit method="post" action="#" class="alt">
+									<h4>Deposit funds to e-banker account from wallet</h4>
+									<div class="row uniform">
+										<div class="12u$">
+											<input type="text" id="text-deposit-address" value="" placeholder="Deposit to account (leave blank for deposit to own account)"/>
+										</div>
+										<div class="6u$ 12u$(xsmall)">
+											<input type="text" id="text-deposit-amountEth" value="" placeholder="Amount to deposit (eth)"/>
+										</div>
+										<p><a id=button-deposit-submit class="button special">Submit Deposit</a></p>
+									</div>
+								</form>
+
+								<!-- Withdraw form -->
+								<form id=form-withdraw method="post" action="#" class="alt">
+									<h4>Withdraw funds from e-banker account to wallet</h4>
+									<div class="row uniform">
+										<!--
+										<div class="12u$">
+											<input type="text" id="text-withdraw-address" value="" placeholder="Withdraw to address (leave blank for withdrawal to own wallet)"/>
+										</div>
+									-->
+										<div class="6u$ 12u$(xsmall)">
+											<input type="text" id="text-withdraw-amountEth" value="" placeholder="Amount to withdraw (eth)"/>
+										</div>
+										<p><a id=button-withdraw-submit class="button special">Submit Withdrawal</a></p>
+									</div>
+								</form>
+
+								<!-- Transfer form -->
+								<form id=form-transfer method="post" action="#" class="alt">
+									<h4>Transfer funds</h4>
+									<div class="row uniform">
+										<div class="12u$">
+											<input type="text" id="text-transfer-address" value="" placeholder="Transfer to account"/>
+										</div>
+										<div class="6u$ 12u$(xsmall)">
+											<input type="text" id="text-transfer-amountEth" value="" placeholder="Amount to transfer (eth)"/>
+										</div>
+										<p><a id=button-transfer-submit class="button special">Submit Transfer</a></p>
+									</div>
+								</form>
+							</section>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>Bankers are just like anybody else, only richer</li></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="resources/js/jquery.min.js"></script>
+			<script src="resources/js/jquery.scrollex.min.js"></script>
+			<script src="resources/js/jquery.scrolly.min.js"></script>
+			<script src="resources/js/skel.min.js"></script>
+			<script src="resources/js/util.js"></script>
+			<script src="resources/js/main.js"></script>
+
+	</body>
+</html>

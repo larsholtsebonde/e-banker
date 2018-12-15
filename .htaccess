@@ -1,0 +1,10 @@
+RewriteEngine on
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} !^/blog/
+
+# Rewrites all URLS [Replace "example" with the actual domain, without the TLD (.com, .net, .biz, etc)]
+RewriteCond %{HTTP_HOST} ^(www\.)?larsholtsebonde.github\.
+
+# Rewrite all those to insert /folder
+RewriteRule ^(.*)$ /website/$1 [L]

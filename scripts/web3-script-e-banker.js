@@ -5,7 +5,7 @@ const mainAddress = "0x0";
 const ropstenAddress = "0x08D6584107e3eE0dECD5025fbb5Cf197c459bC1C";
 const formIds = ["form-activate", "form-deposit", "form-withdraw", "form-transfer"];
 var abi;
-fetch('../contracts/e-banker.abi')
+fetch('./contracts/e-banker.abi')
 .then(response => response.json())
 .then(data => abi = data);
 
