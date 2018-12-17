@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>e-Banker - Trustless ether-bank</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="resources/css/main.css" />
+		<noscript><link rel="stylesheet" href="resources/css/noscript.css" /></noscript>
+		<link rel="icon" href="images/ETHEREUM-ICON_Black_small.png">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">e-banker</a>
+					</header>
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="lets_bank.html">Let's bank!</a></li>
+							<li><a href="contract_code.html">Contract Code</a></li>
+							<li><a href="contract_abi.html">Contract ABI</a></li>
+							<li class="active"><a href="wtf.html">So... what's this?</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<!-- Posts -->
+							<section class="post">
+								<h3>So... what's this?</h3>
+								<hr>
+								<p>A side project to get more experience with DApps by building what could become a decentralized crypto-bank.</p>
+								<br>
+								<h4>Motivation</h4>
+								<p>Using cryptocurrencies must be easier or as easy to use as traditional payment methods. This means paying with a 4 digit pin or contactless payment systems with no authentication methods.</p>
+								<br>
+								<h4>The problem</h4>
+								<p>There are no inherent withdrawal limits, insurances, or payment reversals on the blockchain (with good reason). However, this means that if you lose your lowly secured key or payment "hardware", you lose all your funds.<br>Maintaining several wallets and regularly balancing funds to match your accepted risk is a hassle.<p>
+								<br>
+								<h4>The solution</h4>
+								<p>The idea is simple: store your funds in a smart contract that enforces withdrawal limits. The only way to circumvent the withdrawal limits are to withdraw your funds to a fallback wallet. The fallback wallet should be highly secure and is only intended to be used in the case of your keys for the main wallet being compromised.</p>
+								<br>
+								<h4>The prototype</h4>
+								<p>This is it.</p>
+								<ol>
+									<li>Sign in to your web3 wallet and choose the Ropsten Test Network.</li>
+									<li>Go to <a href="lets_bank.html">Let's bank!</a> and activate an account.</li>
+									<li>Deposit some eth.</li>
+									<li>Withdraw some eth.</li>
+									<li>Transfer funds to another account (e.g. 0x2356f67fb93d39d9ea5f0028e927c6e58cb1911f).</li>
+									<li>Panic and invoke the fallback function!</li>
+								</ol>
+							</section>
+
+						</div>
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>Bankers are just like anybody else, only richer</li></li></ul>
+					</div>
+
+		<!-- Scripts -->
+			<script src="resources/js/jquery.min.js"></script>
+			<script src="resources/js/jquery.scrollex.min.js"></script>
+			<script src="resources/js/jquery.scrolly.min.js"></script>
+			<script src="resources/js/skel.min.js"></script>
+			<script src="resources/js/util.js"></script>
+			<script src="resources/js/main.js"></script>
+
+	</body>
+</html>
