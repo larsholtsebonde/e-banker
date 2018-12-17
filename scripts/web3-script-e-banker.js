@@ -204,12 +204,13 @@ window.addEventListener('load', async () => {
       web3.version.getNetwork((error, netId) => {
         switch (netId) {
           case "1":
-            var contractInstance = contract.at(mainAddress);
-            writeNetwork("Main Ethereum Network")
+            //var contractInstance = contract.at(mainAddress);
+            //writeNetwork("Main Ethereum Network")
+            var contractInstance = null;
             break
           case "3":
             var contractInstance = contract.at(ropstenAddress);
-            writeNetwork("Ropsten Test Network")
+            writeNetwork("Ropsten Test Network");
             break
           default:
             var contractInstance = null;
@@ -231,6 +232,8 @@ window.addEventListener('load', async () => {
           getWriteAllowanceExpiration(contractInstance);
           getWriteNewAllowancesEffectuation(contractInstance);
           getWriteNewFallbackDepositEffectuation(contractInstance);
+        } else {
+          writeAccount('<p>The DApp is currently only available on the Ropsten Test Network.</p>');
         }
       });
     } catch (error) {
