@@ -491,7 +491,7 @@ $(document).ready(function() {
         default:
           var contractInstance = null;
       }
-      contractInstance.invokeFallback((error, result) => {
+      contractInstance.invokeFallback(web3.eth.accounts[0], (error, result) => {
         if (!error) {
           document.location.href = "receipt.html?txn=" + result;
         } else {
