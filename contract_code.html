@@ -36,7 +36,7 @@
 								<h3>Contract code</h3>
 									<pre><code id=contract-code></code></pre>
 									<script>
-										fetch('./contracts/e-banker.sol')
+										fetch('./contracts/CryptoVault.sol')
 										.then(response => response.text())
 										.then((data) => {
 										  document.getElementById("contract-code").innerHTML = data;

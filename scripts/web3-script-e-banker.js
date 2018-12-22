@@ -2,10 +2,10 @@
 * Constants
 */
 const mainAddress = "0x0";
-const ropstenAddress = "0x08D6584107e3eE0dECD5025fbb5Cf197c459bC1C";
+const ropstenAddress = "0xdCBc369782DbCc4340cE78cC5F1ddf2aD754Af99";
 const formIds = ["form-activate", "form-deposit", "form-withdraw", "form-transfer"];
 var abi;
-fetch('./contracts/e-banker.abi')
+fetch('./contracts/CryptoVault.abi')
 .then(response => response.json())
 .then(data => abi = data);
 
@@ -61,7 +61,7 @@ function writeFallbackAddress(fallbackAddress) {
 }
 function getWriteFallbackAddress(contractInstance) {
   contractInstance.getFallbackAddress((error, fallbackAddress) => {
-    writeFallbackAddress(fallbackAddress);
+    writeFallbackAddress(web3.toChecksumAddress(fallbackAddress));
   });
 }
 
@@ -195,7 +195,7 @@ window.addEventListener('load', async () => {
       // Get accounts
       var accounts = web3.eth.accounts;
       // Write accounts
-      writeAccount('Account: ' + accounts[0]);
+      writeAccount('Account: ' + web3.toChecksumAddress(accounts[0]));
       // Write wallet balance
       getWriteWalletBalance(accounts[0]);
       // Get contract
@@ -401,16 +401,14 @@ $(document).ready(function() {
     showElement("form-withdraw");
   });
   $("#button-withdraw-submit").click(function() {
-    //var address = $("#text-withdraw-address").val();
+    var address = $("#text-withdraw-address").val();
     var amountEth = parseFloat($("#text-withdraw-amountEth").val());
-    /*
     if (address == "") {
       address = web3.eth.accounts[0];
     }
     if (!checkAddress(address)) {
       return false;
     }
-    */
     if (!checkAmount(amountEth)) {
       return false;
     }
@@ -428,7 +426,7 @@ $(document).ready(function() {
         default:
           var contractInstance = null;
       }
-      contractInstance.withdrawFunds(web3.toWei(amountEth, "ether"), (error, result) => {
+      contractInstance.withdrawFunds(web3.toWei(amountEth, "ether"), address, (error, result) => {
         if (!error) {
           document.location.href = "receipt.html?txn=" + result;
         } else {

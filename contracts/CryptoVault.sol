@@ -1,12 +1,14 @@
-/** 
+/**
  * Vault to secure funds from compromised keys without having to trust 3rd parties.
- * Created by 
+ * Created by https://github.com/larsholtsebonde
+ * Feel free to copy.
+ * Absolutely no warranties.
 **/
 
 pragma solidity ^0.4.25;
 
 contract CryptoVault {
-    
+
     /** Structs **/
     struct Vault {
         bool vaultActive; // Whether or not the vault is active
@@ -29,7 +31,7 @@ contract CryptoVault {
     /** Global variables **/
     address cryptoVaultCreator; // Address that created the CryptoVault contract
     mapping(address => Vault) vaults;
-    
+
     /** Events **/
     event Warning(string warningMsg, address vaultAddress, string incident, uint effectuation);
     event Notification(string notificationMsg);
@@ -39,7 +41,7 @@ contract CryptoVault {
     event Notification(string notificationMsg, address vaultAddress, uint uint1, uint uint2);
     event Notification(string notificationMsg, address addressSender, address vaultAddress, uint uint1, uint uint2);
     event Notification(string notificationMsg, address addressSender, address addressBeneficiary, uint amountWei, uint newBalanceSender, uint newBalanceWeiBeneficiary);
-    
+
     /** Constructor **/
     constructor(address _fallbackAddress, uint _fallbackDepositWei, uint _fallbackDepositPeriodSec, uint _cumulativeAllowanceWei, uint _allowancePeriodSec) public {
         cryptoVaultCreator = msg.sender; // Set admin as the contract creator
@@ -61,13 +63,13 @@ contract CryptoVault {
         vaults[msg.sender].vaultActive = true;
         emit Notification("CryptoVault Contract created!", msg.sender);
     }
-    
+
     /** Payables **/
     // Payable fallback
     function () external payable {
         revert(); // Don't accept funds by mistake.
     }
-    
+
     // Activate vault
     function activateVault(address _fallbackAddress, uint _fallbackDepositWei, uint _fallbackDepositPeriodSec, uint _cumulativeAllowanceWei, uint _allowancePeriodSec) external payable returns (bool success) {
         require(!vaults[msg.sender].vaultActive);
@@ -90,18 +92,8 @@ contract CryptoVault {
         emit Notification("Vault activated!", msg.sender);
         return true;
     }
-    
-    // Deposit funds to own vault
-    function depositFunds() external payable returns (bool success) {
-        require(vaults[msg.sender].vaultActive);
-        uint _newBalanceWei = vaults[msg.sender].balanceWei + msg.value;
-        require(_newBalanceWei >= msg.value); // Avoid overflow
-        vaults[msg.sender].balanceWei = _newBalanceWei;
-        emit Notification("Deposit", msg.sender, msg.value, _newBalanceWei);
-        return true;
-    }
-    
-    // Deposit funds to someone else's vault
+
+    // Deposit funds to vault
     function depositFunds(address _beneficiaryAddress) external payable returns (bool success) {
         require(vaults[_beneficiaryAddress].vaultActive);
         uint _newBalanceWei = vaults[_beneficiaryAddress].balanceWei + msg.value;
@@ -110,15 +102,13 @@ contract CryptoVault {
         emit Notification("Deposit", msg.sender, _beneficiaryAddress, msg.value, _newBalanceWei);
         return true;
     }
-    
+
     // Invoke fallback from other address (requires a deposit which is sent to the fallback address)
     function invokeFallback(address _vaultAddress) external payable returns (bool success) {
         require(vaults[_vaultAddress].vaultActive);
         require(vaults[_vaultAddress].balanceWei > 0);
         updateFallbackDeposit(); // Update falback deposit before checking if it transferred deposit is large enough
-        if (msg.value < vaults[_vaultAddress].fallbackDepositWei) {
-            revert();
-        }
+        require(msg.sender == _vaultAddress || msg.value >= vaults[_vaultAddress].fallbackDepositWei); // Require that fallback is from the senders account or that a sufficient amount is transferred as fallback deposit
         uint _totalAmountWei = vaults[_vaultAddress].balanceWei + msg.value;
         require(_totalAmountWei >= msg.value); // Avoid overflow
         emit Warning("WARNING!", msg.sender, "Funds being withdrawn to fallback address.", _totalAmountWei); // Emit now to avoid out of gas resulting in funds being withdrawn without emitting a warning
@@ -127,7 +117,7 @@ contract CryptoVault {
         vaults[_vaultAddress].fallbackAddress.transfer(_totalAmountWei); // Return amount in vault plus the deposit (deposit is returned to fallback to discourage misuse)
         return true;
     }
-    
+
     // Function to donate to cryptoVaultCreator
     function donate() external payable returns (bool success) {
         require(msg.value > 0);
@@ -137,7 +127,7 @@ contract CryptoVault {
         emit Notification("Thanks for the donation!", msg.sender, msg.value, _newBalanceWei);
         return true;
     }
-    
+
     /** Primary functions **/
     // Change allowances
     function changeAllowances(uint _newCumulativeAllowanceWei, uint _newAllowancePeriodSec)  external returns (bool success) {
@@ -154,7 +144,7 @@ contract CryptoVault {
         vaults[msg.sender].newAllowancesEffectuationSec = _newAllowancesEffectuationSec;
         return true;
     }
-    
+
     // Change fallback deposit
     function changeFallbackDeposit(uint _newFallbackDepositWei) external returns (bool success) {
         require(vaults[msg.sender].vaultActive);
@@ -169,7 +159,7 @@ contract CryptoVault {
         vaults[msg.sender].newFallbackDepositEffectuationSec = _newFallbackDepositEffectuationSec;
         return true;
     }
-    
+
     // Transfer funds from vault to someone else's vault
     function transferFunds(uint _amountWei, address _beneficiaryAddress) external returns (bool success) {
         require(vaults[_beneficiaryAddress].vaultActive); // Only transfer if beneficiary has a vault
@@ -190,27 +180,7 @@ contract CryptoVault {
         emit Notification("Funds transferred", msg.sender, _beneficiaryAddress, _amountWei, _newBalanceWeiSender, _newBalanceWeiBeneficiary);
         return true;
     }
-    
-    // Withdraw funds
-    function withdrawFunds(uint _amountWei) external returns (bool success) {
-        if (vaults[msg.sender].balanceWei < _amountWei) {
-            emit Warning("WARNING!", msg.sender, "Amount exceeding balance tried to be withdrawn.", _amountWei);
-            return false;
-        }
-        uint _newBalanceWei = vaults[msg.sender].balanceWei - _amountWei;
-        updateAllowances(); // Update allowances before checking transaction is allowed
-        uint _freeAllowanceWei = vaults[msg.sender].freeAllowanceWei;
-        if (_amountWei > _freeAllowanceWei) {
-            emit Warning("WARNING!", msg.sender, "Amount exceeding allowance tried to be withdrawn.", _amountWei);
-            return false;
-        }
-        vaults[msg.sender].balanceWei = _newBalanceWei; // Update balance
-        vaults[msg.sender].freeAllowanceWei = _freeAllowanceWei - _amountWei; // Update remaining allowance
-        emit Notification("Withdrawal", msg.sender, _amountWei, _newBalanceWei);
-        msg.sender.transfer(_amountWei);
-        return true;
-    }
-    
+
     // Withdraw funds to specific address
     function withdrawFunds(uint _amountWei, address _beneficiaryAddress) external returns (bool success) {
         if (vaults[msg.sender].balanceWei < _amountWei) {
@@ -230,103 +200,94 @@ contract CryptoVault {
         _beneficiaryAddress.transfer(_amountWei);
         return true;
     }
-    
-    // Function to withdraw funds to fallback address
-    function invokeFallback() external returns (bool success) {
-        uint _amountWei = vaults[msg.sender].balanceWei; // Get current balance
-        require(_amountWei > 0); // Require that there are funds in the vault
-        emit Warning("WARNING!", msg.sender, "Funds being withdrawn to fallback address.", _amountWei);
-        vaults[msg.sender].balanceWei = 0; // Update new balance
-        vaults[msg.sender].vaultActive = false; // Deactivate vault
-        vaults[msg.sender].fallbackAddress.transfer(_amountWei);
-        return true;
-    }
-    
+
     /** View functions **/
     function getIsActive() external view returns (bool isActive) {
         return vaults[msg.sender].vaultActive;
     }
-    
+
     function getIsActive(address _vaultAddress) external view returns (bool isActive) {
         return vaults[_vaultAddress].vaultActive;
     }
-    
+
     function getBalance() external view returns (uint balanceWei) {
         return vaults[msg.sender].balanceWei;
     }
-    
+
     function getFallbackAddress() external view returns (address fallbackAddress) {
         return vaults[msg.sender].fallbackAddress;
     }
-    
+
     function getFallbackDeposit() external view returns (uint fallbackDepositWei) {
         return vaults[msg.sender].fallbackDepositWei;
     }
-    
+
     function getFallbackDepositPeriod() external view returns (uint fallbackDepositPeriodSec) {
         return vaults[msg.sender].fallbackDepositPeriodSec;
     }
-    
+
     function getCumulativeAllowance() external view returns (uint cumulativeAllowanceWei) {
         return vaults[msg.sender].cumulativeAllowanceWei;
     }
-    
+
     function getAllowancePeriod() external view returns (uint allowancePeriodSec) {
         return vaults[msg.sender].allowancePeriodSec;
     }
-    
+
     function getFreeAllowance() external view returns (uint freeAllowanceWei) {
         return vaults[msg.sender].freeAllowanceWei;
     }
-    
+
     function getAllowanceExpiration() external view returns (uint allowanceExpirationSec) {
         return vaults[msg.sender].allowanceExpirationSec;
     }
-    
+
     function getNewAllowancesEffectuation() external view returns (uint newAllowancesEffectuationSec) {
         return vaults[msg.sender].newAllowancesEffectuationSec;
     }
-    
+
     function getNewCumulativeAllowance() external view returns (uint newCumulativeAllowanceWei) {
         return vaults[msg.sender].newCumulativeAllowanceWei;
     }
-    
+
     function getNewAllowancePeriod() external view returns (uint newAllowancePeriodSec) {
         return vaults[msg.sender].newAllowancePeriodSec;
     }
-    
+
     function getNewFallbackDepositEffectuation() external view returns (uint newFallbackDepositEffectuationSec) {
         return vaults[msg.sender].newFallbackDepositEffectuationSec;
     }
-    
+
     function getNewFallbackDeposit() external view returns (uint newFallbackDepositWei) {
         return vaults[msg.sender].newFallbackDepositWei;
     }
-    
+
     function getNewFallbackDepositPeriod() external view returns (uint newFallbackDepositPeriodSec) {
         return vaults[msg.sender].newFallbackDepositPeriodSec;
     }
-    
+
     function getVaultBalance() external view returns (uint vaultBalance) {
         return address(this).balance;
     }
-    
+
     /** Helper functions **/
     // Update allowance parameters
     function updateAllowances() public {
-        if (now >= vaults[msg.sender].newAllowancesEffectuationSec) {
-            vaults[msg.sender].cumulativeAllowanceWei = vaults[msg.sender].newCumulativeAllowanceWei;
-            vaults[msg.sender].allowancePeriodSec = vaults[msg.sender].newAllowancePeriodSec;
-            vaults[msg.sender].freeAllowanceWei = vaults[msg.sender].cumulativeAllowanceWei;
-        }
+        // Only set new allowances if current ones are expired
         if (now >= vaults[msg.sender].allowanceExpirationSec) {
+            // If allowance expired and new allowances effectuated, set to new allowances
+            if (now >= vaults[msg.sender].newAllowancesEffectuationSec) {
+                vaults[msg.sender].cumulativeAllowanceWei = vaults[msg.sender].newCumulativeAllowanceWei;
+                vaults[msg.sender].allowancePeriodSec = vaults[msg.sender].newAllowancePeriodSec;
+            }
+            // If allowance expired, set new allowances
             uint _newAllowanceExpirationSec = now + vaults[msg.sender].allowancePeriodSec;
             require(_newAllowanceExpirationSec >= now); // Avoid overflow
             vaults[msg.sender].allowanceExpirationSec = _newAllowanceExpirationSec;
             vaults[msg.sender].freeAllowanceWei = vaults[msg.sender].cumulativeAllowanceWei;
         }
     }
-    
+
     function updateFallbackDeposit() public {
         if (now >= vaults[msg.sender].newFallbackDepositEffectuationSec) {
             vaults[msg.sender].fallbackDepositWei = vaults[msg.sender].newFallbackDepositWei;
