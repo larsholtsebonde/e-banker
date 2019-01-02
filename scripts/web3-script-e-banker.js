@@ -233,7 +233,7 @@ window.addEventListener('load', async () => {
           getWriteNewAllowancesEffectuation(contractInstance);
           getWriteNewFallbackDepositEffectuation(contractInstance);
         } else {
-          writeAccount('<p>The DApp is currently only available on the Ropsten Test Network.</p>');
+          writeAccount('<p>The dApp is currently only available on the Ropsten Test Network.</p>');
         }
       });
     } catch (error) {
